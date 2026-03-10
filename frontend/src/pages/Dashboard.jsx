@@ -17,15 +17,6 @@ export default function Dashboard({ user, onLogout }) {
   const [error, setError] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  function getResourceName(id, resources) {
-    const r = resources.find(r => r.id === id)
-    return r ? r.name : "Unknown Resource"
-  }
-
-  function formatDate(date) {
-    return new Date(date).toLocaleString()
-  }
-
   async function loadData() {
 
     try {
@@ -67,7 +58,6 @@ export default function Dashboard({ user, onLogout }) {
     r => !bookedResourceIds.includes(r.id)
   )
 
-  // always include Conference Room A in the available list as requested
   const special = resources.find(r => r.name === "Conference Room A")
   if (special && !availableResources.find(r => r.id === special.id)) {
     availableResources = [...availableResources, special]
@@ -86,7 +76,7 @@ export default function Dashboard({ user, onLogout }) {
 
       {error && <ErrorAlert message={error} />}
 
-      <StatsCards bookings={bookings} />
+      <StatsCards bookings={bookings} resources={resources} />
 
       {/* show available resources when there are any */}
       {availableResources.length > 0 && (
