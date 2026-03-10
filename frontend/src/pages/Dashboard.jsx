@@ -8,28 +8,24 @@ import EmptyState from "../components/EmptyState"
 import ErrorAlert from "../components/ErrorAlert"
 import NewBookingDialog from "../components/NewBookingDialog"
 import BookingList from "../components/BookingList"
-import AvailableResources from "../components/AvailableResources"
 import { getBookings, getResources } from "../services/api"
 
 export default function Dashboard() {
 
   const [bookings, setBookings] = useState([])
-  const [resources, setResources] = useState([])  
+  const [resources, setResources] = useState([])
   const [error, setError] = useState(null)
   const [dialogOpen, setDialogOpen] = useState(false)
 
-function getResourceName(id, resources) {
+  function getResourceName(id, resources) {
+    const r = resources.find(r => r.id === id)
+    return r ? r.name : "Unknown Resource"
+  }
 
-  const r = resources.find(r => r.id === id)
-  return r ? r.name : "Unknown Resource"
+  function formatDate(date) {
+    return new Date(date).toLocaleString()
+  }
 
-}
-
-function formatDate(date) {
-
-  return new Date(date).toLocaleString()
-
-}
   async function loadData() {
 
     try {
@@ -52,24 +48,29 @@ function formatDate(date) {
     }
 
   }
+
   useEffect(() => {
     loadData()
   }, [])
 
   const now = new Date()
 
-  const activeBookings = bookings.filter(b =>
-    new Date(b.end_time) > now
+  const activeBookings = bookings.filter(
+    b => new Date(b.end_time) > now
   )
 
-  const bookedResourceIds = activeBookings.map(b => b.resource_id)
-
-  const availableResources = resources.filter(r =>
-    !bookedResourceIds.includes(r.id)
+  const bookedResourceIds = activeBookings.map(
+    b => b.resource_id
   )
-  
+
+  const availableResources = resources.filter(
+    r => !bookedResourceIds.includes(r.id)
+  )
+
   return (
+
     <div className="p-8">
+
       <Header
         onRefresh={loadData}
         onNewBooking={() => setDialogOpen(true)}
@@ -77,25 +78,23 @@ function formatDate(date) {
 
       {error && <ErrorAlert message={error} />}
 
-      <StatsCards bookings={bookings} resources={resources} />
-
-      {/* always show available resources in its own section */}
-      <AvailableResources resources={availableResources} />
+      <StatsCards bookings={bookings} />
 
       {bookings.length === 0 ? (
         <EmptyState />
       ) : (
-        <BookingList bookings={bookings} resources={resources} />
+       <BookingList bookings={bookings} resources={resources} />
       )}
 
       <NewBookingDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         resources={resources}
-        bookings={bookings}
         onSuccess={loadData}
       />
+
     </div>
+
   )
 
 }
