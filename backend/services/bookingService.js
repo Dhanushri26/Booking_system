@@ -15,8 +15,12 @@ export async function createBookingService(data) {
   const WORK_START = 8
 const WORK_END = 17
 
+const now = new Date()
+
 const start = new Date(start_time)
 const end = new Date(end_time)
+
+const durationMinutes = (end - start) / (1000 * 60)
 
 const durationHours = (end - start) / (1000 * 60 * 60)
 
@@ -29,7 +33,7 @@ if (
   start.getHours() < WORK_START ||
   end.getHours() > WORK_END
 ) {
-  const err = new Error("Bookings allowed only between 8 AM and 5 PM")
+  const err = new Error("Bookings allowed only between 8 AM and 6 PM  ")
   err.status = 400
   throw err
 }
@@ -47,7 +51,6 @@ if (
     err.status = 400
     throw err
   }
-  
 // max duration validation
 if (durationHours > 4) {
   const err = new Error("Booking cannot exceed 4 hours")
