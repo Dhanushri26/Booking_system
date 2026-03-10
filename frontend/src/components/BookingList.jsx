@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 export default function BookingList({ bookings, resources }) {
   // highlight any overlapping entries
   const conflicts = detectConflicts(bookings || [])
@@ -10,6 +11,11 @@ export default function BookingList({ bookings, resources }) {
   function formatDate(date) {
     return new Date(date).toLocaleString()
   }
+
+  function getResourceName(resourceId, resources = []) {
+  const r = resources.find(r => String(r.id) === String(resourceId))
+  return r ? r.name : "Unknown Resource"
+}
 
   function detectConflicts(bookings) {
     const conflicts = []
@@ -72,6 +78,8 @@ export default function BookingList({ bookings, resources }) {
               <td className="p-3">{formatDate(b.end_time)}</td>
             </tr>
           ))}
+
+          
         </tbody>
       </table>
     </div>

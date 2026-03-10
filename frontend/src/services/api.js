@@ -1,47 +1,48 @@
+import { supabase } from "../supabaseClient"
+
 const API_BASE = "http://localhost:5000/api"
 
+async function getAuthHeaders() {
+  const {
+    data: { session }
+  } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    return { Authorization: `Bearer ${session.access_token}` }
+  }
+  return {}
+}
+
 export async function getResources() {
-
   try {
-
-    const res = await fetch(`${API_BASE}/resources`)
+    const headers = await getAuthHeaders()
+    const res = await fetch(`${API_BASE}/resources`, { headers })
     const data = await res.json()
-
     return data
-
   } catch (err) {
-
     console.error("Resources API error:", err)
     return []
-
   }
-
 }
 
 export async function getBookings() {
-
   try {
-
-    const res = await fetch(`${API_BASE}/bookings`)
+    const headers = await getAuthHeaders()
+    const res = await fetch(`${API_BASE}/bookings`, { headers })
     const data = await res.json()
-
     return data
-
   } catch (err) {
-
     console.error("Bookings API error:", err)
     return []
-
   }
-
 }
 
 export async function createBooking(data) {
-
-  const res = await fetch("http://localhost:5000/api/bookings", {
+  const headers = await getAuthHeaders()
+  const res = await fetch(`${API_BASE}/bookings`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      ...headers
     },
     body: JSON.stringify(data)
   })

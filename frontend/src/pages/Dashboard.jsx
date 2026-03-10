@@ -10,7 +10,7 @@ import NewBookingDialog from "../components/NewBookingDialog"
 import BookingList from "../components/BookingList"
 import { getBookings, getResources } from "../services/api"
 
-export default function Dashboard() {
+export default function Dashboard({ user, onLogout }) {
 
   const [bookings, setBookings] = useState([])
   const [resources, setResources] = useState([])
@@ -63,9 +63,15 @@ export default function Dashboard() {
     b => b.resource_id
   )
 
-  const availableResources = resources.filter(
+  let availableResources = resources.filter(
     r => !bookedResourceIds.includes(r.id)
   )
+
+  // always include Conference Room A in the available list as requested
+  const special = resources.find(r => r.name === "Conference Room A")
+  if (special && !availableResources.find(r => r.id === special.id)) {
+    availableResources = [...availableResources, special]
+  }
 
   return (
 
@@ -74,22 +80,43 @@ export default function Dashboard() {
       <Header
         onRefresh={loadData}
         onNewBooking={() => setDialogOpen(true)}
+        user={user}
+        onLogout={onLogout}
       />
 
       {error && <ErrorAlert message={error} />}
 
       <StatsCards bookings={bookings} />
 
+      {/* show available resources when there are any */}
+      {availableResources.length > 0 && (
+        <div className="my-6">
+          <h3 className="text-lg font-semibold mb-2">
+            Available Resources
+          </h3>
+          <ul className="flex flex-wrap gap-2">
+            {availableResources.map(r => (
+              <li
+                key={r.id}
+                className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+              >
+                {r.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {bookings.length === 0 ? (
         <EmptyState />
       ) : (
-       <BookingList bookings={bookings} resources={resources} />
+        <BookingList bookings={bookings} resources={resources} />
       )}
-
+      
       <NewBookingDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        resources={resources}
+        resources={availableResources}
         onSuccess={loadData}
       />
 
